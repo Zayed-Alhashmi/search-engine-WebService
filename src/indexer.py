@@ -1,7 +1,5 @@
-"""
-indexer.py
-Builds an inverted index from crawled HTML pages for use by the search engine.
-"""
+# indexer.py
+# Builds an inverted index from crawled HTML pages for use by the search engine.
 
 import re
 

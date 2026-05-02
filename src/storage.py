@@ -1,7 +1,5 @@
-"""
-storage.py
-Handles saving and loading the inverted index to and from disk as a JSON file.
-"""
+# storage.py
+# Handles saving and loading the inverted index to and from disk as a JSON file.
 
 import json
 import os

@@ -1,7 +1,5 @@
-"""
-test_crawler.py
-Unit tests for src/crawler.py. All HTTP calls are mocked, no real network requests.
-"""
+# test_crawler.py
+# Unit tests for src/crawler.py. All HTTP calls are mocked, no real network requests.
 
 from unittest.mock import MagicMock, patch
 

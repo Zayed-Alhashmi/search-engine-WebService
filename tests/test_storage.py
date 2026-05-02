@@ -1,7 +1,5 @@
-"""
-test_storage.py
-Unit tests for src/storage.py. Uses pytest's tmp_path fixture so no real files are created.
-"""
+# test_storage.py
+# Unit tests for src/storage.py. Uses pytest tmp_path so no real files are created.
 
 import pytest
 

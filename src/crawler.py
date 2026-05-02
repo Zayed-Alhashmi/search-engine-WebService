@@ -1,7 +1,5 @@
-"""
-crawler.py
-Web crawler: downloads pages, extracts links, and stays within the same domain.
-"""
+# crawler.py
+# Web crawler: downloads pages, extracts links, and stays within the same domain.
 
 import time
 from urllib.parse import urljoin, urlparse

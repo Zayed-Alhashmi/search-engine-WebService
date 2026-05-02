@@ -1,7 +1,5 @@
-"""
-test_indexer.py
-Unit tests for src/indexer.py. No network calls are made.
-"""
+# test_indexer.py
+# Unit tests for src/indexer.py. No network calls are made.
 
 import pytest
 
