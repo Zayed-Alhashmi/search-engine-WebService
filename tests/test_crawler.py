@@ -39,7 +39,6 @@ PAGE2_HTML = """
 
 # Helper to build a mock requests.Response with a given status code and body text
 def _make_response(status: int, text: str) -> MagicMock:
-    """Build a mock requests.Response with a given status and body."""
     resp = MagicMock()
     resp.status_code = status
     resp.text = text
@@ -72,14 +71,14 @@ def test_fetch_page_returns_html_on_200():
     assert fetch_page(SEED, mock_session) == "<html>OK</html>"
 
 
-# Checks that a non-200 status (like 404) causes fetch_page to return None
+# Checks that a non-200 status causes fetch_page to return None
 def test_fetch_page_returns_none_on_404():
     mock_session = MagicMock()
     mock_session.get.return_value = _make_response(404, "")
     assert fetch_page(SEED, mock_session) is None
 
 
-# Checks that a network-level exception is caught and None is returned instead of crashing
+# Checks that a network exception is caught and None is returned instead of crashing
 def test_fetch_page_returns_none_on_network_error():
     import requests as req
     mock_session = MagicMock()
@@ -102,7 +101,7 @@ def test_crawl_returns_dict_of_url_to_html(mock_session_cls, mock_sleep):
     assert result[SEED] == SEED_HTML
 
 
-# Checks that relative links are resolved and the resulting pages are actually visited
+# Checks that relative links are resolved and the resulting pages are visited
 @patch("src.crawler.time.sleep")
 @patch("src.crawler.requests.Session")
 def test_crawl_follows_relative_links(mock_session_cls, mock_sleep):
@@ -177,6 +176,6 @@ def test_crawl_enforces_politeness_delay(mock_session_cls, mock_sleep):
         _make_response(200, PAGE2_HTML),
     ]
     crawl(SEED)
-    assert mock_sleep.call_count == 2          # one call per page
+    assert mock_sleep.call_count == 2         # one call per page
     for call in mock_sleep.call_args_list:
-        assert call.args[0] == 6              # must be exactly 6 seconds
+        assert call.args[0] == 6             # must be exactly 6 seconds

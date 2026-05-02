@@ -14,22 +14,11 @@ CRAWL_DELAY = 6  # seconds to wait between requests (politeness requirement)
 
 # Returns just the domain part of a URL, used to check if a link is on the same site
 def get_domain(url: str) -> str:
-    """Return the domain of a URL, e.g. 'quotes.toscrape.com'."""
     return urlparse(url).netloc
 
 
 # Downloads a single page and returns its HTML, or None if something goes wrong
 def fetch_page(url: str, session: requests.Session) -> str | None:
-    """
-    Fetch a page and return its HTML, or None if the request fails.
-
-    Args:
-        url: The page URL to fetch.
-        session: Active requests session.
-
-    Returns:
-        Raw HTML string, or None on error or non-200 status.
-    """
     try:
         response = session.get(url, timeout=10)
         if response.status_code != 200:
@@ -43,16 +32,6 @@ def fetch_page(url: str, session: requests.Session) -> str | None:
 
 # Parses all anchor tags from a page and converts relative links to absolute URLs
 def extract_links(html: str, base_url: str) -> list[str]:
-    """
-    Extract all links from a page as absolute URLs.
-
-    Args:
-        html: Raw HTML of the page.
-        base_url: Used to resolve relative links (e.g. /page/2/).
-
-    Returns:
-        List of absolute URLs found in <a href> tags.
-    """
     soup = BeautifulSoup(html, "html.parser")
     links = []
     for tag in soup.find_all("a", href=True):
@@ -63,18 +42,6 @@ def extract_links(html: str, base_url: str) -> list[str]:
 
 # Main crawl loop: visits pages on the same domain, skips duplicates, enforces delay
 def crawl(seed_url: str = "https://quotes.toscrape.com") -> dict[str, str]:
-    """
-    Crawl a website from seed_url and return all pages found.
-
-    Only follows links on the same domain. Skips already-visited pages.
-    Waits CRAWL_DELAY seconds between each request.
-
-    Args:
-        seed_url: Starting URL for the crawl.
-
-    Returns:
-        Dict mapping each visited URL to its raw HTML content.
-    """
     domain = get_domain(seed_url)
     visited: set[str] = set()
     queue: list[str] = [seed_url]
