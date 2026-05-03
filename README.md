@@ -15,15 +15,13 @@ This tool downloads every page on the target website, extracts the visible text,
 search-engine-WebService/
 ├── src/
 │   ├── crawler.py       - Web crawler
-│   ├── indexer.py       - Tokeniser and inverted index builder
-│   ├── search.py        - Search and query processing
-│   ├── storage.py       - Save and load index to/from file
+│   ├── indexer.py       - Tokeniser, inverted index builder, and index save/load
+│   ├── search.py        - Search and query processing with TF-IDF ranking
 │   └── main.py          - Command-line interface
 ├── tests/
 │   ├── test_crawler.py
 │   ├── test_indexer.py
-│   ├── test_search.py
-│   └── test_storage.py
+│   └── test_search.py
 ├── data/                - Generated index file stored here (not tracked by git)
 ├── requirements.txt
 └── README.md
@@ -57,7 +55,7 @@ Once running, type one of the following commands at the `>` prompt:
 
 ## How It Works
 
-The tool runs a four-stage pipeline. The **crawler** downloads every page on the site using a 6-second delay between requests, staying within the same domain. The raw HTML is passed to the **indexer**, which strips tags, lowercases all text, removes punctuation, and splits the content into tokens. These tokens are stored in an **inverted index** that maps each word to the pages it appears on, including a count and a list of positions. The index is then saved to disk as a JSON file by the **storage** module, and can be queried at any time using the **search** module.
+The tool runs a four-stage pipeline. The **crawler** downloads every page on the site using a 6-second delay between requests, staying within the same domain. The raw HTML is passed to the **indexer**, which strips tags, lowercases all text, removes punctuation, and splits the content into tokens. These tokens are stored in an **inverted index** that maps each word to the pages it appears on, including a count and a list of positions. The index is saved to disk as a JSON file and can be queried at any time using the **search** module, which ranks results using TF-IDF scoring.
 
 
 ## Testing
@@ -66,16 +64,17 @@ The tool runs a four-stage pipeline. The **crawler** downloads every page on the
 pytest tests/ -v
 ```
 
-There are **34 tests** in total covering the crawler, indexer, storage, and search modules. All tests use mocking and do not make real network calls.
+There are **37 tests** in total covering the crawler, indexer, and search modules. All tests use mocking and do not make real network calls.
 
 ## Design Decisions
 
 - The inverted index stores both word count and positions for each page, allowing frequency-based ranking and potential future use of positional data.
 - Multi-word queries use AND logic: a page must contain every query word to appear in results.
-- Results are ranked by total word frequency across all query terms, so the most relevant pages appear first.
+- Results are ranked by TF-IDF score: term frequency is normalised for page length, and rare words are rewarded over common ones.
 - A 6-second politeness window is enforced between every request as required by the coursework specification.
 - Single-character tokens are filtered out during tokenisation to reduce noise in the index.
 - The index is saved as JSON for simplicity and human readability.
+- Save and load functions live in indexer.py to keep the project structure minimal.
 
 
 ## Dependencies
