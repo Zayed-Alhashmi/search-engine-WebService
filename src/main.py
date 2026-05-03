@@ -8,8 +8,7 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.crawler import crawl
-from src.indexer import build_index
-from src.storage import load_index, save_index
+from src.indexer import build_index, load_index, save_index
 from src.search import find_pages, print_word
 
 
