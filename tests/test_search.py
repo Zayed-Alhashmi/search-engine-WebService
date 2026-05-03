@@ -3,7 +3,7 @@
 
 import pytest
 
-from src.search import find_pages, print_word
+from src.search import calculate_tfidf, find_pages, print_word
 
 # Small index used across most tests
 # Page A has "good" twice and "morning" once
@@ -83,3 +83,57 @@ def test_find_pages_is_case_insensitive():
     result = find_pages(SAMPLE_INDEX, "GOOD")
     assert "https://example.com/a" in result
     assert "https://example.com/b" in result
+
+
+# TFIDF_INDEX: "rare" is on 1 of 10 pages, "common" is on 9 of 10, both appear once on target
+TFIDF_INDEX = {
+    "rare": {
+        "http://target.com": {"count": 1, "positions": [0]},
+    },
+    "common": {
+        "http://target.com": {"count": 1, "positions": [1]},
+        "http://p2.com": {"count": 1, "positions": [0]},
+        "http://p3.com": {"count": 1, "positions": [0]},
+        "http://p4.com": {"count": 1, "positions": [0]},
+        "http://p5.com": {"count": 1, "positions": [0]},
+        "http://p6.com": {"count": 1, "positions": [0]},
+        "http://p7.com": {"count": 1, "positions": [0]},
+        "http://p8.com": {"count": 1, "positions": [0]},
+        "http://p9.com": {"count": 1, "positions": [0]},
+        "http://p10.com": {"count": 1, "positions": [0]},
+    },
+}
+
+
+# Checks that calculate_tfidf returns a higher score for a word that is rare across pages
+def test_calculate_tfidf_higher_for_rare_word():
+    url = "http://target.com"
+    total_pages = 10
+    rare_score = calculate_tfidf(TFIDF_INDEX, "rare", url, total_pages)    # on 1/10 pages
+    common_score = calculate_tfidf(TFIDF_INDEX, "common", url, total_pages)  # on 9/10 pages
+    assert rare_score > common_score
+
+
+# Checks that calculate_tfidf returns a lower score for a word that appears on almost every page
+def test_calculate_tfidf_lower_for_common_word():
+    url = "http://target.com"
+    total_pages = 10
+    rare_score = calculate_tfidf(TFIDF_INDEX, "rare", url, total_pages)
+    common_score = calculate_tfidf(TFIDF_INDEX, "common", url, total_pages)
+    assert common_score < rare_score  # common word is penalised by low IDF
+
+
+# Checks that find_pages ranks by TF-IDF so the shorter, more focused page wins over a longer one
+def test_find_pages_tfidf_ranks_relevant_page_first():
+    tfidf_test_index = {
+        "alpha": {
+            "http://page-a.com": {"count": 10, "positions": list(range(10))},
+            "http://page-b.com": {"count": 3, "positions": [0, 1, 2]},
+        },
+        "filler": {
+            "http://page-a.com": {"count": 90, "positions": list(range(10, 100))},  # inflates page A word count
+        },
+    }
+    result = find_pages(tfidf_test_index, "alpha")
+    assert result[0] == "http://page-b.com"  # page B: TF = 3/3 = 1.0 beats page A: TF = 10/100 = 0.1
+    assert result[1] == "http://page-a.com"

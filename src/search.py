@@ -1,6 +1,8 @@
 # search.py
 # Query functions for looking up words and finding matching pages in the index.
 
+import math
+
 
 # Looks up a single word in the index and returns a formatted result string
 def print_word(index: dict, word: str) -> str:
@@ -18,7 +20,27 @@ def print_word(index: dict, word: str) -> str:
     return "\n".join(lines)
 
 
-# Returns a ranked list of page URLs that contain every word in the query (AND logic)
+# Calculates the TF-IDF relevance score for a single word on a single page
+def calculate_tfidf(index: dict, word: str, page_url: str, total_pages: int) -> float:
+    count = index[word][page_url]["count"]
+
+    # Total words on this page = sum of all word counts for this URL
+    total_words_on_page = sum(
+        index[w][page_url]["count"]
+        for w in index
+        if page_url in index[w]
+    )
+
+    tf = count / total_words_on_page if total_words_on_page > 0 else 0  # normalises for page length
+
+    pages_with_word = len(index[word])  # number of pages the word appears on
+
+    idf = math.log(1 + total_pages / pages_with_word)  # smoothed to avoid 0 when word is on every page
+
+    return tf * idf
+
+
+# Returns a TF-IDF ranked list of page URLs that contain every word in the query (AND logic)
 def find_pages(index: dict, query: str) -> list[str]:
     words = query.lower().split()
 
@@ -39,8 +61,12 @@ def find_pages(index: dict, query: str) -> list[str]:
     if not matching_pages:
         return []
 
-    # Rank by total frequency across all query words (highest count first)
-    def total_count(url):
-        return sum(index[word][url]["count"] for word in words)
+    # Total unique pages across the entire index
+    all_pages = set(url for word_data in index.values() for url in word_data)
+    total_pages = len(all_pages)
 
-    return sorted(matching_pages, key=total_count, reverse=True)
+    # Rank by summed TF-IDF score across all query words (highest score first)
+    def tfidf_score(url):
+        return sum(calculate_tfidf(index, word, url, total_pages) for word in words)
+
+    return sorted(matching_pages, key=tfidf_score, reverse=True)
