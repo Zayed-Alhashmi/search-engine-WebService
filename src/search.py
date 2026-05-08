@@ -73,3 +73,23 @@ def find_pages(index: dict, query: str) -> list[str]:
         return sum(calculate_tfidf(index, word, url, total_pages) for word in words)
 
     return sorted(matching_pages, key=tfidf_score, reverse=True)
+
+
+# Returns up to 5 index words that begin with the given partial string (case-insensitive)
+def suggest_words(index: dict, partial: str) -> list[str]:
+    """Return up to 5 words from the index that start with `partial`.
+
+    The comparison is case-insensitive: both `partial` and every index key are
+    lowercased before matching.  The returned words are in their lowercased index
+    form and sorted alphabetically.  An empty list is returned when no words match.
+
+    Args:
+        index:   The inverted index built by indexer.build_index().
+        partial: The prefix string to match against (e.g. "fri").
+
+    Returns:
+        A sorted list of up to 5 matching words.
+    """
+    prefix = partial.lower()
+    matches = sorted(word for word in index if word.startswith(prefix))
+    return matches[:5]

@@ -3,7 +3,7 @@
 
 import pytest
 
-from src.search import calculate_tfidf, find_pages, print_word
+from src.search import calculate_tfidf, find_pages, print_word, suggest_words
 
 # Small index used across most tests
 # Page A has "good" twice and "morning" once
@@ -137,3 +137,44 @@ def test_find_pages_tfidf_ranks_relevant_page_first():
     result = find_pages(tfidf_test_index, "alpha")
     assert result[0] == "http://page-b.com"  # page B: TF = 3/3 = 1.0 beats page A: TF = 10/100 = 0.1
     assert result[1] == "http://page-a.com"
+
+
+# Index used by suggest_words tests
+SUGGEST_INDEX = {
+    "friend": {"https://example.com/a": {"count": 1, "positions": [0]}},
+    "friendship": {"https://example.com/a": {"count": 1, "positions": [1]}},
+    "friday": {"https://example.com/b": {"count": 1, "positions": [0]}},
+    "frame": {"https://example.com/b": {"count": 1, "positions": [1]}},
+    "free": {"https://example.com/b": {"count": 1, "positions": [2]}},
+    "frozen": {"https://example.com/b": {"count": 1, "positions": [3]}},
+    "hello": {"https://example.com/c": {"count": 1, "positions": [0]}},
+}
+
+
+# Checks that suggest_words returns words that start with the given prefix
+def test_suggest_words_returns_prefix_matches():
+    result = suggest_words(SUGGEST_INDEX, "fri")
+    assert "friend" in result
+    assert "friendship" in result
+    assert "friday" in result
+    assert "hello" not in result  # does not start with "fri"
+
+
+# Checks that suggest_words is case-insensitive so "FRI" matches the same words as "fri"
+def test_suggest_words_is_case_insensitive():
+    result_lower = suggest_words(SUGGEST_INDEX, "fri")
+    result_upper = suggest_words(SUGGEST_INDEX, "FRI")
+    assert result_lower == result_upper
+
+
+# Checks that suggest_words returns an empty list when no words share the given prefix
+def test_suggest_words_no_match_returns_empty():
+    result = suggest_words(SUGGEST_INDEX, "xyz")
+    assert result == []
+
+
+# Checks that suggest_words never returns more than 5 results even when more matches exist
+def test_suggest_words_caps_at_five_results():
+    # SUGGEST_INDEX has 6 words starting with "fr": frame, free, friday, friend, friendship, frozen
+    result = suggest_words(SUGGEST_INDEX, "fr")
+    assert len(result) <= 5

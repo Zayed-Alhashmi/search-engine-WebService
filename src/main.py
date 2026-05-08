@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.crawler import crawl
 from src.indexer import build_index, load_index, save_index
-from src.search import find_pages, print_word
+from src.search import find_pages, print_word, suggest_words
 
 
 # Handles the 'build' command: crawls the site, builds the index, and saves it to disk
@@ -63,6 +63,24 @@ def handle_find(index: dict | None, args: str) -> None:
         print(f"  {i}. {url}")
 
 
+# Handles the 'suggest <partial>' command: prints up to 5 prefix-matched words from the index
+def handle_suggest(index: dict | None, args: str) -> None:
+    if not args.strip():
+        print("Usage: suggest <partial>")
+        return
+    if index is None:
+        print("No index in memory. Run 'build' or 'load' first.")
+        return
+    partial = args.strip()
+    suggestions = suggest_words(index, partial)
+    if not suggestions:
+        print(f"No suggestions found for '{partial}'")
+        return
+    print(f"Suggestions for '{partial}':")
+    for i, word in enumerate(suggestions, start=1):
+        print(f"  {i}. {word}")
+
+
 # Main entry point: displays the welcome message and runs the command loop
 def main() -> None:
     print("Search Engine  COMP3011")
@@ -96,12 +114,15 @@ def main() -> None:
             elif command == "find":
                 handle_find(index, args)
 
+            elif command == "suggest":
+                handle_suggest(index, args)
+
             elif command in ("quit", "exit"):
                 print("Goodbye!")
                 break
 
             else:
-                print("Unknown command. Available commands: build, load, print <word>, find <query>, quit")
+                print("Unknown command. Available commands: build, load, print <word>, find <query>, suggest <partial>, quit")
 
     except KeyboardInterrupt:
         print("\nGoodbye!")
