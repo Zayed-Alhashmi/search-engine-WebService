@@ -1,0 +1,24 @@
+# AI Declaration
+
+## Tool Used
+Microsoft Copilot
+
+## How It Was Used
+- Generating boilerplate code structure for each module
+- Writing initial implementations of the crawler, indexer, and search functions
+- Suggesting test cases and helping write the test suite
+- Debugging errors during development
+- Understanding libraries such as requests and BeautifulSoup
+- Helping implement TF-IDF ranking after I identified that raw word count was insufficient
+
+## Critical Evaluation
+Copilot was useful for getting things written quickly, but it made mistakes that required my own understanding to catch.
+
+The clearest example was a file path bug — it saved the index to `src/data/index.json` but the load command expected it at `data/index.json`. All tests passed because they mock the file system, so the bug was invisible until I ran the tool manually. I had to trace the path logic myself to find and fix it.
+
+It also initially ranked search results by raw word count. Having studied the module lectures on query processing, I recognised this was a weak approach and directed Copilot to implement TF-IDF ranking instead. The code it produced was correct, but knowing what to ask for required understanding the material first.
+
+Overall, Copilot sped up development but did not replace understanding, it depended on it.
+
+## Declaration
+All code in this submission was reviewed and tested by me. I understand every part of the implementation and can explain all design decisions.
