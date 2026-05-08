@@ -8,7 +8,8 @@ import re
 
 from bs4 import BeautifulSoup
 
-DEFAULT_INDEX_PATH = "data/index.json"
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DEFAULT_INDEX_PATH = os.path.join(BASE_DIR, "data", "index.json")
 
 
 # Strips all HTML tags, scripts, and styles and returns plain readable text

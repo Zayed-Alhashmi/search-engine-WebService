@@ -44,6 +44,9 @@ def calculate_tfidf(index: dict, word: str, page_url: str, total_pages: int) -> 
 def find_pages(index: dict, query: str) -> list[str]:
     words = query.lower().split()
 
+    # single-character tokens are filtered to match tokeniser behaviour
+    words = [w for w in words if len(w) > 1]
+
     if not words:
         return []
 
