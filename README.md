@@ -16,7 +16,7 @@ search-engine-WebService/
 ├── src/
 │   ├── crawler.py       - Web crawler
 │   ├── indexer.py       - Tokeniser, inverted index builder, and index save/load
-│   ├── search.py        - Search and query processing with TF-IDF ranking
+│   ├── search.py        - Search, TF-IDF ranking, and query suggestions
 │   └── main.py          - Command-line interface
 ├── tests/
 │   ├── test_crawler.py
@@ -50,6 +50,7 @@ Once running, type one of the following commands at the `>` prompt:
 | `load` | Loads a previously built index instantly from file | `load` |
 | `print <word>` | Looks up a single word and shows which pages contain it | `print love` |
 | `find <query>` | Finds all pages containing every word in the query, ranked by frequency | `find good friends` |
+| `suggest <partial>` | Returns up to 5 word suggestions from the index starting with the given letters | `suggest fri` |
 | `quit` | Exits the program | `quit` |
 
 
@@ -64,7 +65,7 @@ The tool runs a four-stage pipeline. The **crawler** downloads every page on the
 pytest tests/ -v
 ```
 
-There are **37 tests** in total covering the crawler, indexer, and search modules. All tests use mocking and do not make real network calls.
+There are **41 tests** in total covering the crawler, indexer, and search modules. All tests use mocking and do not make real network calls.
 
 ## Design Decisions
 
